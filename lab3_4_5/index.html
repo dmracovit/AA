@@ -1,0 +1,1150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Unified Algorithm Visualization</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f5f5f5;
+      color: #333;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    h1, h2 {
+      text-align: center;
+      color: #2c3e50;
+      margin-bottom: 20px;
+    }
+
+    h1 {
+      font-size: 28px;
+      border-bottom: 2px solid #3498db;
+      padding-bottom: 10px;
+      margin-bottom: 30px;
+    }
+    
+    .algorithm-section {
+      margin-bottom: 30px;
+    }
+
+    .algorithm-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 20px;
+      padding: 15px;
+      background-color: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .algo-button {
+      background-color: #3498db;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background-color 0.3s;
+    }
+
+    .algo-button:hover {
+      background-color: #2980b9;
+    }
+
+    .algo-button.reset {
+      background-color: #e74c3c;
+    }
+
+    .algo-button.reset:hover {
+      background-color: #c0392b;
+    }
+
+    .algo-button.compare {
+      background-color: #2ecc71;
+    }
+
+    .algo-button.compare:hover {
+      background-color: #27ae60;
+    }
+    
+    .algo-section {
+      padding: 0 10px;
+      margin: 0 5px;
+      border-right: 1px solid #ddd;
+    }
+    
+    .algo-section:last-child {
+      border-right: none;
+    }
+
+    .canvas-container {
+      margin-bottom: 20px;
+      padding: 15px;
+      background-color: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    canvas {
+      margin: 10px 0;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      background-color: white;
+    }
+
+    .algorithm-info {
+      background-color: #ecf0f1;
+      padding: 15px;
+      border-radius: 8px;
+      margin-top: 20px;
+      border-left: 5px solid #3498db;
+    }
+
+    .complexity-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+
+    .complexity-table th, .complexity-table td {
+      border: 1px solid #ddd;
+      padding: 10px;
+      text-align: center;
+    }
+
+    .complexity-table th {
+      background-color: #3498db;
+      color: white;
+    }
+
+    .complexity-table tr:nth-child(even) {
+      background-color: #f2f2f2;
+    }
+
+    footer {
+      text-align: center;
+      padding: 20px;
+      margin-top: 40px;
+      border-top: 1px solid #ddd;
+      color: #7f8c8d;
+      font-size: 14px;
+    }
+
+    @media (max-width: 768px) {
+      .algorithm-buttons {
+        flex-direction: column;
+      }
+      
+      canvas {
+        max-width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Unified Algorithm Visualization</h1>
+    
+    <div class="algorithm-section">
+      <div class="algorithm-buttons">
+        <!-- Graph Traversal Algorithms -->
+        <div class="algo-section">
+          <button class="algo-button" onclick="runDFS()">Run DFS</button>
+          <button class="algo-button" onclick="runBFS()">Run BFS</button>
+        </div>
+        
+        <!-- Dynamic Programming Algorithms -->
+        <div class="algo-section">
+          <button class="algo-button" onclick="runDijkstra()">Run Dijkstra</button>
+          <button class="algo-button" onclick="runFloydWarshall()">Run Floyd-Warshall</button>
+        </div>
+        
+        <!-- Greedy Algorithms -->
+        <div class="algo-section">
+          <button class="algo-button" onclick="runPrim()">Run Prim</button>
+          <button class="algo-button" onclick="runKruskal()">Run Kruskal</button>
+        </div>
+        
+        <!-- Comparison and Utilities -->
+        <div class="algo-section">
+          <button class="algo-button reset" onclick="drawGraph()">Reset Graph</button>
+          <button class="algo-button compare" onclick="measurePerformance()">Compare Performance</button>
+        </div>
+      </div>
+      
+      <div class="canvas-container">
+        <canvas id="graphCanvas" width="800" height="600"></canvas>
+      </div>
+    </div>
+    
+    <!-- Performance Comparison Section -->
+    <div class="canvas-container">
+      <h3>Performance Comparison</h3>
+      <canvas id="perfCanvas" width="800" height="300"></canvas>
+      <button class="algo-button compare" onclick="drawComparison()">Show Theoretical Complexity</button>
+      <h3>Theoretical Complexity</h3>
+      <canvas id="theoryCanvas" width="800" height="300"></canvas>
+    </div>
+    
+    <!-- Algorithm Information -->
+    <div class="algorithm-info">
+      <h3>Algorithm Overview</h3>
+      
+      <h4>Graph Traversal Algorithms</h4>
+      <p><strong>Depth-First Search (DFS):</strong> Explores as far as possible along each branch before backtracking. It uses a stack data structure (or recursion) for its implementation.</p>
+      <p><strong>Breadth-First Search (BFS):</strong> Explores all neighbors at the current depth before moving to nodes at the next depth level. It uses a queue data structure.</p>
+      
+      <h4>Dynamic Programming Algorithms</h4>
+      <p><strong>Dijkstra's Algorithm:</strong> Finds the shortest paths from a single source to all other vertices in a weighted graph with non-negative edge weights. It uses dynamic programming by building solutions from previously found shortest paths.</p>
+      <p><strong>Floyd-Warshall Algorithm:</strong> Finds shortest paths between all pairs of vertices in a weighted graph. It uses dynamic programming by considering all possible intermediate vertices for each pair.</p>
+      
+      <h4>Greedy Algorithms</h4>
+      <p><strong>Prim's Algorithm:</strong> Finds the Minimum Spanning Tree (MST) by always adding the edge with the lowest weight that connects a vertex in the tree to a vertex outside the tree.</p>
+      <p><strong>Kruskal's Algorithm:</strong> Finds the MST by considering edges in order of increasing weight, adding each edge that doesn't create a cycle.</p>
+      
+      <h3>Time and Space Complexity</h3>
+      <table class="complexity-table">
+        <tr>
+          <th>Algorithm</th>
+          <th>Time Complexity</th>
+          <th>Space Complexity</th>
+          <th>Category</th>
+          <th>Use Case</th>
+        </tr>
+        <tr>
+          <td>DFS</td>
+          <td>O(V + E)</td>
+          <td>O(V)</td>
+          <td>Graph Traversal</td>
+          <td>Path finding, cycle detection</td>
+        </tr>
+        <tr>
+          <td>BFS</td>
+          <td>O(V + E)</td>
+          <td>O(V)</td>
+          <td>Graph Traversal</td>
+          <td>Shortest path (unweighted)</td>
+        </tr>
+        <tr>
+          <td>Dijkstra</td>
+          <td>O(E log V)</td>
+          <td>O(V)</td>
+          <td>Dynamic Programming</td>
+          <td>Single-source shortest paths</td>
+        </tr>
+        <tr>
+          <td>Floyd-Warshall</td>
+          <td>O(V³)</td>
+          <td>O(V²)</td>
+          <td>Dynamic Programming</td>
+          <td>All-pairs shortest paths</td>
+        </tr>
+        <tr>
+          <td>Prim</td>
+          <td>O(E log V)</td>
+          <td>O(V)</td>
+          <td>Greedy</td>
+          <td>Minimum spanning tree</td>
+        </tr>
+        <tr>
+          <td>Kruskal</td>
+          <td>O(E log E)</td>
+          <td>O(V + E)</td>
+          <td>Greedy</td>
+          <td>Minimum spanning tree</td>
+        </tr>
+      </table>
+    </div>
+    
+    <footer>
+      Created for Algorithm Analysis Laboratory Work<br>
+      Visualization helps understand graph algorithms through interactive demonstrations
+    </footer>
+  </div>
+
+  <script>
+    // Global definitions for nodes and edges
+    const canvas = document.getElementById('graphCanvas');
+    const ctx = canvas.getContext('2d');
+
+    const perfCanvas = document.getElementById('perfCanvas');
+    const perfCtx = perfCanvas.getContext('2d');
+
+    const theoryCanvas = document.getElementById('theoryCanvas');
+    const theoryCtx = theoryCanvas.getContext('2d');
+
+    // Example nodes and edges for an undirected weighted graph with 12 nodes
+    // Using a smaller, more visible graph layout in a circular pattern
+    const nodes = [
+      { id: 0, x: 400, y: 100 },
+      { id: 1, x: 550, y: 150 },
+      { id: 2, x: 600, y: 300 },
+      { id: 3, x: 550, y: 450 },
+      { id: 4, x: 400, y: 500 },
+      { id: 5, x: 250, y: 450 },
+      { id: 6, x: 200, y: 300 },
+      { id: 7, x: 250, y: 150 },
+      { id: 8, x: 400, y: 250 }, // Center node
+      { id: 9, x: 475, y: 200 },
+      { id: 10, x: 325, y: 200 },
+      { id: 11, x: 400, y: 350 }
+    ];
+
+    const edges = [
+      { from: 0, to: 1, weight: 4 }, 
+      { from: 1, to: 2, weight: 3 },
+      { from: 2, to: 3, weight: 2 },
+      { from: 3, to: 4, weight: 5 },
+      { from: 4, to: 5, weight: 4 },
+      { from: 5, to: 6, weight: 3 },
+      { from: 6, to: 7, weight: 2 },
+      { from: 7, to: 0, weight: 5 },
+      { from: 0, to: 8, weight: 6 },
+      { from: 1, to: 9, weight: 7 },
+      { from: 2, to: 8, weight: 5 },
+      { from: 3, to: 11, weight: 3 },
+      { from: 4, to: 8, weight: 4 },
+      { from: 5, to: 11, weight: 6 },
+      { from: 6, to: 8, weight: 3 },
+      { from: 7, to: 10, weight: 4 },
+      { from: 8, to: 9, weight: 2 },
+      { from: 9, to: 11, weight: 6 },
+      { from: 10, to: 11, weight: 7 },
+      { from: 10, to: 8, weight: 3 }
+    ];
+
+    // Graph for DFS and BFS (using an adjacency list)
+    const graph = {};
+    nodes.forEach(node => graph[node.id] = []);
+    edges.forEach(edge => {
+      graph[edge.from].push(edge.to);
+      graph[edge.to].push(edge.from); // Undirected graph
+    });
+
+    // Utility delay function
+    function delay(ms) {
+      return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    /*---------------------------
+      Draw Base Graph Function
+    ----------------------------*/
+    function drawGraph(highlightedNodes = [], highlightedEdges = []) {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Draw edges
+      edges.forEach(edge => {
+        ctx.beginPath();
+        ctx.moveTo(nodes[edge.from].x, nodes[edge.from].y);
+        ctx.lineTo(nodes[edge.to].x, nodes[edge.to].y);
+        if (highlightedEdges.find(e => 
+              (e.from === edge.from && e.to === edge.to) ||
+              (e.from === edge.to && e.to === edge.from)
+            )) {
+          ctx.strokeStyle = '#f00';
+          ctx.lineWidth = 4;
+        } else {
+          ctx.strokeStyle = '#000';
+          ctx.lineWidth = 2;
+        }
+        ctx.stroke();
+        
+        // Add weight labels to edges
+        const midX = (nodes[edge.from].x + nodes[edge.to].x) / 2;
+        const midY = (nodes[edge.from].y + nodes[edge.to].y) / 2;
+        
+        // Add a small white background for better visibility
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+        ctx.beginPath();
+        ctx.arc(midX, midY, 10, 0, 2 * Math.PI);
+        ctx.fill();
+        
+        ctx.fillStyle = '#555';
+        ctx.font = '12px Arial';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(edge.weight, midX, midY);
+      });
+
+      // Draw nodes
+      nodes.forEach(node => {
+        ctx.beginPath();
+        ctx.arc(node.x, node.y, 20, 0, Math.PI * 2);
+        ctx.fillStyle = highlightedNodes.includes(node.id) ? '#0f0' : '#ccc';
+        ctx.fill();
+        ctx.strokeStyle = '#333';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        // Node ID
+        ctx.fillStyle = '#000';
+        ctx.font = '16px Arial';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(node.id, node.x, node.y);
+      });
+      
+      // Add a title to show what the graph is
+      ctx.fillStyle = '#000';
+      ctx.font = '20px Arial';
+      ctx.textAlign = 'center';
+      ctx.fillText('Graph Visualization', canvas.width / 2, 30);
+    }
+
+    /*---------------------------
+      DFS Implementation Demo
+    ----------------------------*/
+    async function runDFS() {
+      drawGraph();
+      await delay(500);
+      const visited = {};
+      const order = [];
+
+      async function dfs(node) {
+        visited[node] = true;
+        order.push(node);
+        drawGraph(order);
+        await delay(500);
+        for (let neighbor of graph[node]) {
+          if (!visited[neighbor]) {
+            await dfs(neighbor);
+          }
+        }
+      }
+
+      await dfs(0);
+      
+      // Add a completion message
+      ctx.fillStyle = "#000";
+      ctx.font = "24px Arial";
+      ctx.textAlign = "center";
+      ctx.fillText("DFS Traversal Complete: " + order.join(" → "), canvas.width / 2, canvas.height - 30);
+    }
+
+    /*---------------------------
+      BFS Implementation Demo
+    ----------------------------*/
+    async function runBFS() {
+      drawGraph();
+      await delay(500);
+      const visited = {};
+      const order = [];
+      const queue = [0];
+      visited[0] = true;
+
+      while (queue.length) {
+        const node = queue.shift();
+        order.push(node);
+        drawGraph(order);
+        await delay(500);
+        for (let neighbor of graph[node]) {
+          if (!visited[neighbor]) {
+            visited[neighbor] = true;
+            queue.push(neighbor);
+          }
+        }
+      }
+      
+      // Add a completion message
+      ctx.fillStyle = "#000";
+      ctx.font = "24px Arial";
+      ctx.textAlign = "center";
+      ctx.fillText("BFS Traversal Complete: " + order.join(" → "), canvas.width / 2, canvas.height - 30);
+    }
+
+    /*---------------------------
+      Prim's Algorithm Demo
+    ----------------------------*/
+    async function runPrim() {
+      drawGraph();
+      await delay(500);
+      let mstNodes = new Set();
+      let mstEdges = [];
+      mstNodes.add(0);
+      
+      // Display the starting node
+      ctx.fillStyle = "#000";
+      ctx.font = "18px Arial";
+      ctx.textAlign = "center";
+      ctx.fillText("Starting from node 0", canvas.width / 2, 60);
+
+      function getCandidateEdges() {
+        return edges.filter(edge => 
+          (mstNodes.has(edge.from) && !mstNodes.has(edge.to)) ||
+          (mstNodes.has(edge.to) && !mstNodes.has(edge.from))
+        );
+      }
+
+      while (mstNodes.size < nodes.length) {
+        let candidateEdges = getCandidateEdges();
+        if (candidateEdges.length === 0) break;
+        candidateEdges.sort((a, b) => a.weight - b.weight);
+        let chosenEdge = candidateEdges[0];
+        
+        // Highlight the chosen edge
+        ctx.fillStyle = "#000";
+        ctx.font = "16px Arial";
+        ctx.textAlign = "center";
+        ctx.fillText("Selected edge: " + chosenEdge.from + " → " + chosenEdge.to + " (weight: " + chosenEdge.weight + ")", canvas.width / 2, 90);
+        
+        mstEdges.push(chosenEdge);
+        let newVertex = mstNodes.has(chosenEdge.from) ? chosenEdge.to : chosenEdge.from;
+        mstNodes.add(newVertex);
+        drawGraph(Array.from(mstNodes), mstEdges);
+        await delay(800); // Slightly longer delay to see the steps better
+      }
+      
+      // Calculate total MST weight
+      const totalWeight = mstEdges.reduce((sum, edge) => sum + edge.weight, 0);
+
+      ctx.fillStyle = "#000";
+      ctx.font = "24px Arial";
+      ctx.textAlign = "center";
+      ctx.fillText("Prim's Algorithm: MST Complete", canvas.width / 2, canvas.height - 60);
+      ctx.font = "18px Arial";
+      ctx.fillText("Total MST Weight: " + totalWeight, canvas.width / 2, canvas.height - 30);
+    }
+
+    /*---------------------------
+      Kruskal's Algorithm Demo
+    ----------------------------*/
+    async function runKruskal() {
+      drawGraph();
+      await delay(500);
+      let sortedEdges = [...edges].sort((a, b) => a.weight - b.weight);
+      let mstEdges = [];
+      let parent = Array.from({ length: nodes.length }, (_, i) => i);
+      
+      // Display initial message
+      ctx.fillStyle = "#000";
+      ctx.font = "18px Arial";
+      ctx.textAlign = "center";
+      ctx.fillText("Sorting edges by weight", canvas.width / 2, 60);
+
+      function find(x) {
+        if (parent[x] !== x) {
+          parent[x] = find(parent[x]);
+        }
+        return parent[x];
+      }
+
+      function union(x, y) {
+        let rootX = find(x);
+        let rootY = find(y);
+        if (rootX === rootY) return false;
+        parent[rootY] = rootX;
+        return true;
+      }
+
+      for (let edge of sortedEdges) {
+        drawGraph([], mstEdges);
+        
+        // Display current edge being considered
+        ctx.fillStyle = "#000";
+        ctx.font = "16px Arial";
+        ctx.textAlign = "center";
+        ctx.fillText("Considering edge: " + edge.from + " → " + edge.to + " (weight: " + edge.weight + ")", canvas.width / 2, 90);
+        
+        await delay(600);
+        if (union(edge.from, edge.to)) {
+          mstEdges.push(edge);
+          drawGraph([], mstEdges);
+          
+          // Display edge being added
+          ctx.fillStyle = "#000";
+          ctx.font = "16px Arial";
+          ctx.textAlign = "center";
+          ctx.fillText("Added to MST: " + edge.from + " → " + edge.to, canvas.width / 2, 90);
+          
+          await delay(800);
+        } else {
+          drawGraph([], mstEdges);
+          
+          // Display edge creating cycle
+          ctx.fillStyle = "#000";
+          ctx.font = "16px Arial";
+          ctx.textAlign = "center";
+          ctx.fillText("Rejected (would create cycle): " + edge.from + " → " + edge.to, canvas.width / 2, 90);
+          
+          ctx.beginPath();
+          ctx.setLineDash([5, 5]);
+          ctx.moveTo(nodes[edge.from].x, nodes[edge.from].y);
+          ctx.lineTo(nodes[edge.to].x, nodes[edge.to].y);
+          ctx.strokeStyle = "#f00";
+          ctx.lineWidth = 4;
+          ctx.stroke();
+          ctx.setLineDash([]);
+          await delay(800);
+          drawGraph([], mstEdges);
+        }
+      }
+      
+      // Calculate total MST weight
+      const totalWeight = mstEdges.reduce((sum, edge) => sum + edge.weight, 0);
+
+      ctx.fillStyle = "#000";
+      ctx.font = "24px Arial";
+      ctx.textAlign = "center";
+      ctx.fillText("Kruskal's Algorithm: MST Complete", canvas.width / 2, canvas.height - 60);
+      ctx.font = "18px Arial";
+      ctx.fillText("Total MST Weight: " + totalWeight, canvas.width / 2, canvas.height - 30);
+    }
+
+    /*---------------------------
+      Dijkstra's Algorithm Demo
+    ----------------------------*/
+    async function runDijkstra() {
+      const weightedGraph = {};
+      nodes.forEach(node => {
+        weightedGraph[node.id] = [];
+      });
+      edges.forEach(edge => {
+        weightedGraph[edge.from].push({ node: edge.to, weight: edge.weight });
+        weightedGraph[edge.to].push({ node: edge.from, weight: edge.weight });
+      });
+
+      const distances = Array(nodes.length).fill(Infinity);
+      const previous = Array(nodes.length).fill(null);
+      const visited = new Set();
+      distances[0] = 0;
+      
+      ctx.fillStyle = "#000";
+      ctx.font = "18px Arial";
+      ctx.textAlign = "center";
+      ctx.fillText("Starting from node 0", canvas.width / 2, 60);
+
+      function updateVisualization(current = null) {
+        drawGraph(Array.from(visited));
+        
+        nodes.forEach(node => {
+          ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+          ctx.beginPath();
+          ctx.arc(node.x, node.y - 25, 15, 0, 2 * Math.PI);
+          ctx.fill();
+          
+          ctx.fillStyle = "#000";
+          ctx.font = "14px Arial";
+          ctx.textAlign = "center";
+          const d = distances[node.id] === Infinity ? "∞" : distances[node.id];
+          ctx.fillText(d, node.x, node.y - 25);
+          
+          // Highlight the current node being processed
+          if (node.id === current) {
+            ctx.beginPath();
+            ctx.arc(node.x, node.y, 25, 0, 2 * Math.PI);
+            ctx.strokeStyle = "#00f";
+            ctx.lineWidth = 3;
+            ctx.stroke();
+          }
+        });
+      }
+
+      updateVisualization();
+      await delay(800);
+
+      while (visited.size < nodes.length) {
+        let currentNode = null;
+        let currentDist = Infinity;
+        
+        // Find the node with the smallest distance
+        for (let i = 0; i < distances.length; i++) {
+          if (!visited.has(i) && distances[i] < currentDist) {
+            currentDist = distances[i];
+            currentNode = i;
+          }
+        }
+        
+        // If we can't find a node, we're done
+        if (currentNode === null) break;
+        
+        // Mark the node as visited
+        visited.add(currentNode);
+        
+        // Display current node being processed
+        ctx.fillStyle = "#000";
+        ctx.font = "16px Arial";
+        ctx.textAlign = "center";
+        ctx.fillText("Processing node: " + currentNode + " (distance: " + distances[currentNode] + ")", canvas.width / 2, 90);
+        
+        updateVisualization(currentNode);
+        await delay(800);
+        
+        // Check all neighbors
+        for (let neighbor of weightedGraph[currentNode]) {
+          if (!visited.has(neighbor.node)) {
+            const newDist = distances[currentNode] + neighbor.weight;
+            
+            // If we found a shorter path
+            if (newDist < distances[neighbor.node]) {
+              // Display edge relaxation
+              ctx.fillStyle = "#000";
+              ctx.font = "16px Arial";
+              ctx.textAlign = "center";
+              ctx.fillText("Updating: " + currentNode + " → " + neighbor.node + " (new distance: " + newDist + ")", canvas.width / 2, 120);
+              
+              distances[neighbor.node] = newDist;
+              previous[neighbor.node] = currentNode;
+              updateVisualization(currentNode);
+              await delay(800);
+            }
+          }
+        }
+        
+        updateVisualization();
+        await delay(600);
+      }
+
+      // Draw shortest path tree
+      drawGraph(Array.from(visited));
+      
+      // Draw the final shortest paths
+      for (let i = 1; i < nodes.length; i++) {
+        if (previous[i] !== null) {
+          ctx.beginPath();
+          ctx.moveTo(nodes[previous[i]].x, nodes[previous[i]].y);
+          ctx.lineTo(nodes[i].x, nodes[i].y);
+          ctx.strokeStyle = "#00f";
+          ctx.lineWidth = 3;
+          ctx.stroke();
+        }
+      }
+      
+      // Draw the final distances
+      nodes.forEach(node => {
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+        ctx.beginPath();
+        ctx.arc(node.x, node.y - 25, 15, 0, 2 * Math.PI);
+        ctx.fill();
+        
+        ctx.fillStyle = "#000";
+        ctx.font = "14px Arial";
+        ctx.textAlign = "center";
+        const d = distances[node.id] === Infinity ? "∞" : distances[node.id];
+        ctx.fillText(d, node.x, node.y - 25);
+      });
+      
+      ctx.fillStyle = "#000";
+      ctx.font = "24px Arial";
+      ctx.textAlign = "center";
+      ctx.fillText("Dijkstra's Algorithm: Shortest Paths Computed", canvas.width / 2, canvas.height - 30);
+    }
+
+    /*---------------------------
+      Floyd–Warshall Algorithm Demo
+    ----------------------------*/
+    async function runFloydWarshall() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = "#000";
+      ctx.font = "24px Arial";
+      ctx.textAlign = "center";
+      ctx.fillText("Floyd–Warshall Algorithm Demo", canvas.width / 2, 30);
+      await delay(800);
+
+      const n = nodes.length;
+      let dist = Array.from({ length: n }, () => Array(n).fill(Infinity));
+      
+      for (let i = 0; i < n; i++) {
+        dist[i][i] = 0; // Distance to self is 0
+      }
+      
+      for (let e of edges) {
+        dist[e.from][e.to] = e.weight;
+        dist[e.to][e.from] = e.weight; // For undirected graph
+      }
+      
+      ctx.fillStyle = "#000";
+      ctx.font = "18px Arial";
+      ctx.textAlign = "center";
+      ctx.fillText("Initial Distance Matrix", canvas.width / 2, 60);
+      
+      drawFloydWarshallGraph(dist, [], "Initial Graph");
+      await delay(1200);
+      
+      for (let k = 0; k < n; k++) {
+        let changedEdges = [];
+        
+        ctx.fillStyle = "#000";
+        ctx.font = "18px Arial";
+        ctx.textAlign = "center";
+        ctx.fillText(`Using node ${k} as intermediate`, canvas.width / 2, 60);
+        
+        // Check all pairs of vertices
+        for (let i = 0; i < n; i++) {
+          for (let j = 0; j < n; j++) {
+            // Skip if i = j (self-loops)
+            if (i === j) continue;
+            
+            // Calculate potential new distance through k
+            let throughK = dist[i][k] + dist[k][j];
+            
+            // If going through k is shorter
+            if (throughK < dist[i][j]) {
+              // Display the improvement
+              ctx.fillStyle = "#000";
+              ctx.font = "16px Arial";
+              ctx.textAlign = "center";
+              ctx.fillText(`Improved: ${i} → ${j} via ${k} (${dist[i][j]} → ${throughK})`, canvas.width / 2, 90);
+              
+              // Update distance
+              dist[i][j] = throughK;
+              changedEdges.push({ i, j });
+            }
+          }
+        }
+        
+        // Visualize the updated graph
+        drawFloydWarshallGraph(dist, changedEdges, `After using node ${k}`);
+        await delay(1200);
+      }
+      
+      // Final visualization
+      ctx.fillStyle = "#000";
+      ctx.font = "24px Arial";
+      ctx.textAlign = "center";
+      ctx.fillText("Floyd–Warshall: All Pairs Shortest Paths Computed", canvas.width / 2, canvas.height - 30);
+    }
+
+      function drawFloydWarshallGraph(dist, changedEdges, title) {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      
+      // Draw nodes
+      nodes.forEach(node => {
+        ctx.beginPath();
+        ctx.arc(node.x, node.y, 20, 0, 2 * Math.PI);
+        ctx.fillStyle = "#ccc";
+        ctx.fill();
+        ctx.strokeStyle = '#333';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        
+        // Node ID
+        ctx.fillStyle = '#000';
+        ctx.font = '16px Arial';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(node.id, node.x, node.y);
+      });
+      
+      // Draw edges based on the distance matrix
+      for (let i = 0; i < nodes.length; i++) {
+        for (let j = i + 1; j < nodes.length; j++) {
+          // Only draw edges that exist (finite distance)
+          if (dist[i][j] !== Infinity) {
+            // Check if the edge was changed in this iteration
+            let isChanged = changedEdges.some(
+              e => (e.i === i && e.j === j) || (e.i === j && e.j === i)
+            );
+            
+            ctx.beginPath();
+            ctx.moveTo(nodes[i].x, nodes[i].y);
+            ctx.lineTo(nodes[j].x, nodes[j].y);
+            ctx.strokeStyle = isChanged ? '#f00' : '#00f';
+            ctx.lineWidth = isChanged ? 4 : 2;
+            ctx.stroke();
+            
+            // Add weight labels
+            const midX = (nodes[i].x + nodes[j].x) / 2;
+            const midY = (nodes[i].y + nodes[j].y) / 2;
+            
+            // White background for better visibility
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+            ctx.beginPath();
+            ctx.arc(midX, midY, 12, 0, 2 * Math.PI);
+            ctx.fill();
+            
+            ctx.fillStyle = isChanged ? '#f00' : '#000';
+            ctx.font = '14px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(dist[i][j], midX, midY);
+          }
+        }
+      }
+      
+      // Add title
+      ctx.fillStyle = "#000";
+      ctx.font = "24px Arial";
+      ctx.textAlign = "center";
+      ctx.fillText(title, canvas.width / 2, 30);
+    }
+
+    /*---------------------------
+      Performance Measurement & Chart
+    ----------------------------*/
+    async function measurePerformance() {
+      const algorithms = [
+        { name: 'DFS', func: runDFS },
+        { name: 'BFS', func: runBFS },
+        { name: 'Prim', func: runPrim },
+        { name: 'Kruskal', func: runKruskal },
+        { name: 'Dijkstra', func: runDijkstra },
+        { name: 'Floyd–Warshall', func: runFloydWarshall }
+      ];
+
+      drawGraph();
+      await delay(500);
+      const results = [];
+
+      for (let algo of algorithms) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = "#000";
+        ctx.font = "24px Arial";
+        ctx.textAlign = "center";
+        ctx.fillText(`Running ${algo.name}...`, canvas.width / 2, canvas.height / 2);
+        await delay(500);
+        const start = performance.now();
+        await algo.func();
+        const end = performance.now();
+        results.push({ name: algo.name, time: end - start });
+        await delay(500);
+      }
+      drawPerformanceChart(results);
+    }
+
+    function drawPerformanceChart(data) {
+      perfCtx.clearRect(0, 0, perfCanvas.width, perfCanvas.height);
+      const margin = 50;
+      const chartWidth = perfCanvas.width - margin * 2;
+      const chartHeight = perfCanvas.height - margin * 2;
+      const maxTime = Math.max(...data.map(d => d.time));
+      
+      // Draw background for better visibility
+      perfCtx.fillStyle = '#f9f9f9';
+      perfCtx.fillRect(0, 0, perfCanvas.width, perfCanvas.height);
+      
+      // Draw axes
+      perfCtx.beginPath();
+      perfCtx.moveTo(margin, margin);
+      perfCtx.lineTo(margin, margin + chartHeight);
+      perfCtx.lineTo(margin + chartWidth, margin + chartHeight);
+      perfCtx.strokeStyle = "#000";
+      perfCtx.lineWidth = 2;
+      perfCtx.stroke();
+      
+      // Draw y-axis grid lines and labels
+      const numGridLines = 5;
+      for (let i = 0; i <= numGridLines; i++) {
+        const y = margin + chartHeight - (i / numGridLines) * chartHeight;
+        const value = (i / numGridLines) * maxTime;
+        
+        // Draw grid line
+        perfCtx.beginPath();
+        perfCtx.moveTo(margin, y);
+        perfCtx.lineTo(margin + chartWidth, y);
+        perfCtx.strokeStyle = "#ccc";
+        perfCtx.lineWidth = 1;
+        perfCtx.stroke();
+        
+        // Draw label
+        perfCtx.fillStyle = "#666";
+        perfCtx.font = "12px Arial";
+        perfCtx.textAlign = "right";
+        perfCtx.textBaseline = "middle";
+        perfCtx.fillText(value.toFixed(0) + " ms", margin - 5, y);
+      }
+      
+      // Draw bars
+      const barWidth = chartWidth / data.length - 20;
+      const colors = ['#4285F4', '#EA4335', '#FBBC05', '#34A853', '#FF6D01', '#46BDC6'];
+      
+      data.forEach((d, i) => {
+        const barHeight = (d.time / maxTime) * chartHeight;
+        const x = margin + i * ((chartWidth) / data.length) + 10;
+        const y = margin + chartHeight - barHeight;
+        
+        // Draw bar with gradient
+        const gradient = perfCtx.createLinearGradient(x, y, x, y + barHeight);
+        gradient.addColorStop(0, colors[i % colors.length]);
+        gradient.addColorStop(1, lightenColor(colors[i % colors.length], 0.3));
+        
+        perfCtx.fillStyle = gradient;
+        perfCtx.fillRect(x, y, barWidth, barHeight);
+        
+        // Add border
+        perfCtx.strokeStyle = "#000";
+        perfCtx.lineWidth = 1;
+        perfCtx.strokeRect(x, y, barWidth, barHeight);
+        
+        // Add algorithm name
+        perfCtx.fillStyle = "#000";
+        perfCtx.font = "14px Arial";
+        perfCtx.textAlign = "center";
+        perfCtx.fillText(d.name, x + barWidth / 2, margin + chartHeight + 15);
+        
+        // Add time value
+        perfCtx.fillStyle = "#000";
+        perfCtx.font = "12px Arial";
+        perfCtx.fillText(d.time.toFixed(0) + " ms", x + barWidth / 2, y - 5);
+      });
+      
+      // Add title
+      perfCtx.fillStyle = "#000";
+      perfCtx.font = "20px Arial";
+      perfCtx.textAlign = "center";
+      perfCtx.fillText("Algorithm Execution Time Comparison", perfCanvas.width / 2, margin - 10);
+      
+      // Add legend for what time includes
+      perfCtx.fillStyle = "#666";
+      perfCtx.font = "12px Arial";
+      perfCtx.textAlign = "center";
+      perfCtx.fillText("Note: Times include visualization delays", perfCanvas.width / 2, perfCanvas.height - 10);
+    }
+
+    // Helper function to lighten colors
+    function lightenColor(color, factor) {
+      // Convert hex to RGB
+      let r, g, b;
+      if (color.startsWith('#')) {
+        r = parseInt(color.substr(1, 2), 16);
+        g = parseInt(color.substr(3, 2), 16);
+        b = parseInt(color.substr(5, 2), 16);
+      } else {
+        return color; // Not a hex color
+      }
+      
+      // Lighten
+      r = Math.min(255, r + (255 - r) * factor);
+      g = Math.min(255, g + (255 - g) * factor);
+      b = Math.min(255, b + (255 - b) * factor);
+      
+      // Convert back to hex
+      return "#" + 
+        Math.round(r).toString(16).padStart(2, '0') + 
+        Math.round(g).toString(16).padStart(2, '0') + 
+        Math.round(b).toString(16).padStart(2, '0');
+    }
+
+    function drawComparison() {
+      theoryCtx.clearRect(0, 0, theoryCanvas.width, theoryCanvas.height);
+      
+      // Draw background
+      theoryCtx.fillStyle = '#f9f9f9';
+      theoryCtx.fillRect(0, 0, theoryCanvas.width, theoryCanvas.height);
+
+      const V = nodes.length;
+      const E = edges.length;
+
+      function randomFactor() {
+        return 0.8 + Math.random() * 0.4;  
+      }
+     
+      const baseTime = 1e-6;  
+      const theory = [
+        { name: "DFS", time: (V + E) * baseTime * randomFactor(), complexity: "O(V + E)" },
+        { name: "BFS", time: (V + E) * baseTime * randomFactor(), complexity: "O(V + E)" },
+        { name: "Prim", time: (E * Math.log2(V)) * baseTime * randomFactor(), complexity: "O(E log V)" },
+        { name: "Kruskal", time: (E * Math.log2(E)) * baseTime * randomFactor(), complexity: "O(E log E)" },
+        { name: "Dijkstra", time: (E * Math.log2(V)) * baseTime * randomFactor(), complexity: "O(E log V)" },
+        { name: "Floyd–Warshall", time: (V ** 3) * baseTime * randomFactor(), complexity: "O(V³)" }
+      ];
+
+      const margin = 50;
+      const chartWidth = theoryCanvas.width - margin * 2;
+      const chartHeight = theoryCanvas.height - margin * 2;
+
+      // Find max execution time for scaling
+      const maxTime = Math.max(...theory.map(d => d.time));
+
+      // Draw axes
+      theoryCtx.beginPath();
+      theoryCtx.moveTo(margin, margin);
+      theoryCtx.lineTo(margin, margin + chartHeight);
+      theoryCtx.lineTo(margin + chartWidth, margin + chartHeight);
+      theoryCtx.strokeStyle = "#000";
+      theoryCtx.lineWidth = 2;
+      theoryCtx.stroke();
+      
+      // Draw y-axis grid lines and labels
+      const numGridLines = 5;
+      for (let i = 0; i <= numGridLines; i++) {
+        const y = margin + chartHeight - (i / numGridLines) * chartHeight;
+        const value = (i / numGridLines) * maxTime;
+        
+        // Draw grid line
+        theoryCtx.beginPath();
+        theoryCtx.moveTo(margin, y);
+        theoryCtx.lineTo(margin + chartWidth, y);
+        theoryCtx.strokeStyle = "#ccc";
+        theoryCtx.lineWidth = 1;
+        theoryCtx.stroke();
+        
+        // Draw label
+        theoryCtx.fillStyle = "#666";
+        theoryCtx.font = "12px Arial";
+        theoryCtx.textAlign = "right";
+        theoryCtx.textBaseline = "middle";
+        theoryCtx.fillText(value.toFixed(6) + " s", margin - 5, y);
+      }
+
+      // Bar Chart
+      const barWidth = chartWidth / theory.length - 20;
+      const colors = ['#4285F4', '#EA4335', '#FBBC05', '#34A853', '#FF6D01', '#46BDC6'];
+      
+      theory.forEach((d, i) => {
+        const barHeight = (d.time / maxTime) * chartHeight;
+        const x = margin + i * ((chartWidth) / theory.length) + 10;
+        const y = margin + chartHeight - barHeight;
+        
+        // Draw bar with gradient
+        const gradient = theoryCtx.createLinearGradient(x, y, x, y + barHeight);
+        gradient.addColorStop(0, colors[i % colors.length]);
+        gradient.addColorStop(1, lightenColor(colors[i % colors.length], 0.3));
+        
+        theoryCtx.fillStyle = gradient;
+        theoryCtx.fillRect(x, y, barWidth, barHeight);
+        
+        // Add border
+        theoryCtx.strokeStyle = "#000";
+        theoryCtx.lineWidth = 1;
+        theoryCtx.strokeRect(x, y, barWidth, barHeight);
+        
+        // Add algorithm name
+        theoryCtx.fillStyle = "#000";
+        theoryCtx.font = "14px Arial";
+        theoryCtx.textAlign = "center";
+        theoryCtx.fillText(d.name, x + barWidth / 2, margin + chartHeight + 15);
+        
+        // Add complexity
+        theoryCtx.fillStyle = "#333";
+        theoryCtx.font = "12px Arial";
+        theoryCtx.fillText(d.complexity, x + barWidth / 2, margin + chartHeight + 35);
+        
+        // Add time value
+        theoryCtx.fillStyle = "#000";
+        theoryCtx.font = "12px Arial";
+        theoryCtx.fillText(d.time.toFixed(6) + " s", x + barWidth / 2, y - 5);
+      });
+
+      // Title
+      theoryCtx.fillStyle = "#000";
+      theoryCtx.font = "20px Arial";
+      theoryCtx.textAlign = "center";
+      theoryCtx.fillText("Theoretical Time Complexity Comparison", theoryCanvas.width / 2, margin - 10);
+      
+      // Add explanation
+      theoryCtx.fillStyle = "#666";
+      theoryCtx.font = "12px Arial";
+      theoryCtx.textAlign = "center";
+      theoryCtx.fillText("This chart shows relative theoretical performance based on algorithm complexity", 
+                         theoryCanvas.width / 2, theoryCanvas.height - 10);
+    }
+
+    // Initialize the visualization
+    drawGraph();
+  </script>
+</body>
+</html>

@@ -116,7 +116,7 @@ def animate_sort(frames_list, titles, times):
     plt.tight_layout()
     plt.show()
 
-data_size = 32  # power of 2
+data_size = 64  # power of 2
 arr = generate_random(data_size)
 
 algorithms = [
