@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Unified Algorithm Visualization</title>
+  <title>Algorithm Visualization</title>
   <style>
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -19,7 +19,7 @@
       padding: 20px;
     }
 
-    h1, h2 {
+    h1, h2, h3 {
       text-align: center;
       color: #2c3e50;
       margin-bottom: 20px;
@@ -36,7 +36,7 @@
       margin-bottom: 30px;
     }
 
-    .algorithm-buttons {
+    .algorithm-buttons, .graph-type-selection {
       display: flex;
       flex-wrap: wrap;
       justify-content: center;
@@ -48,7 +48,7 @@
       box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     }
 
-    .algo-button {
+    .algo-button, .graph-button {
       background-color: #3498db;
       color: white;
       border: none;
@@ -59,7 +59,7 @@
       transition: background-color 0.3s;
     }
 
-    .algo-button:hover {
+    .algo-button:hover, .graph-button:hover {
       background-color: #2980b9;
     }
 
@@ -77,6 +77,11 @@
 
     .algo-button.compare:hover {
       background-color: #27ae60;
+    }
+
+    .graph-button.active {
+      background-color: #16a085;
+      box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
     }
     
     .algo-section {
@@ -115,6 +120,30 @@
       border-left: 5px solid #3498db;
     }
 
+    .controls-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-bottom: 15px;
+      gap: 15px;
+    }
+
+    .input-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .input-group label {
+      font-weight: bold;
+    }
+
+    input[type="number"] {
+      padding: 8px;
+      border-radius: 4px;
+      border: 1px solid #ddd;
+    }
+
     .complexity-table {
       width: 100%;
       border-collapse: collapse;
@@ -145,8 +174,18 @@
       font-size: 14px;
     }
 
+    .graph-type-section {
+      margin-bottom: 20px;
+    }
+
+    .graph-type-description {
+      font-style: italic;
+      text-align: center;
+      margin-bottom: 10px;
+    }
+
     @media (max-width: 768px) {
-      .algorithm-buttons {
+      .algorithm-buttons, .graph-type-selection {
         flex-direction: column;
       }
       
@@ -158,9 +197,36 @@
 </head>
 <body>
   <div class="container">
-    <h1>Unified Algorithm Visualization</h1>
+    <h1>Algorithm Visualization</h1>
+
+    <!-- Graph Type Selection Section -->
+    <div class="graph-type-section">
+      <h2>Select Graph Type</h2>
+      <p class="graph-type-description">Choose a graph structure to visualize how algorithms behave differently</p>
+      
+      <div class="controls-container">
+        <div class="input-group">
+          <label for="nodeCount">Number of Nodes:</label>
+          <input type="number" id="nodeCount" min="5" max="50" value="12">
+        </div>
+      </div>
+      
+      <div class="graph-type-selection">
+        <button class="graph-button active" onclick="selectGraphType('default')">Default</button>
+        <button class="graph-button" onclick="selectGraphType('path')">Path</button>
+        <button class="graph-button" onclick="selectGraphType('cycle')">Cycle</button>
+        <button class="graph-button" onclick="selectGraphType('complete')">Complete</button>
+        <button class="graph-button" onclick="selectGraphType('star')">Star</button>
+        <button class="graph-button" onclick="selectGraphType('bipartite')">Bipartite</button>
+        <button class="graph-button" onclick="selectGraphType('binary_tree')">Binary Tree</button>
+        <button class="graph-button" onclick="selectGraphType('grid')">Grid</button>
+        <button class="graph-button" onclick="selectGraphType('sparse')">Sparse Random</button>
+        <button class="graph-button" onclick="selectGraphType('dense')">Dense Random</button>
+      </div>
+    </div>
     
     <div class="algorithm-section">
+      <h2>Select Algorithm</h2>
       <div class="algorithm-buttons">
         <!-- Graph Traversal Algorithms -->
         <div class="algo-section">
@@ -216,6 +282,17 @@
       <h4>Greedy Algorithms</h4>
       <p><strong>Prim's Algorithm:</strong> Finds the Minimum Spanning Tree (MST) by always adding the edge with the lowest weight that connects a vertex in the tree to a vertex outside the tree.</p>
       <p><strong>Kruskal's Algorithm:</strong> Finds the MST by considering edges in order of increasing weight, adding each edge that doesn't create a cycle.</p>
+
+      <h4>Graph Types</h4>
+      <p><strong>Path:</strong> A linear graph where nodes are connected in sequence.</p>
+      <p><strong>Cycle:</strong> A graph where nodes form a circular path.</p>
+      <p><strong>Complete:</strong> Every node is connected to every other node.</p>
+      <p><strong>Star:</strong> One central node connected to all others.</p>
+      <p><strong>Bipartite:</strong> Nodes can be divided into two distinct groups with edges only between groups.</p>
+      <p><strong>Binary Tree:</strong> A hierarchical structure where each node has at most two children.</p>
+      <p><strong>Grid:</strong> Nodes arranged in a 2D grid pattern.</p>
+      <p><strong>Sparse Random:</strong> Randomly connected graph with few edges.</p>
+      <p><strong>Dense Random:</strong> Randomly connected graph with many edges.</p>
       
       <h3>Time and Space Complexity</h3>
       <table class="complexity-table">
@@ -288,53 +365,509 @@
     const theoryCanvas = document.getElementById('theoryCanvas');
     const theoryCtx = theoryCanvas.getContext('2d');
 
-    // Example nodes and edges for an undirected weighted graph with 12 nodes
-    // Using a smaller, more visible graph layout in a circular pattern
-    const nodes = [
-      { id: 0, x: 400, y: 100 },
-      { id: 1, x: 550, y: 150 },
-      { id: 2, x: 600, y: 300 },
-      { id: 3, x: 550, y: 450 },
-      { id: 4, x: 400, y: 500 },
-      { id: 5, x: 250, y: 450 },
-      { id: 6, x: 200, y: 300 },
-      { id: 7, x: 250, y: 150 },
-      { id: 8, x: 400, y: 250 }, // Center node
-      { id: 9, x: 475, y: 200 },
-      { id: 10, x: 325, y: 200 },
-      { id: 11, x: 400, y: 350 }
-    ];
+    // Current graph type
+    let currentGraphType = 'default';
+    let nodes = [];
+    let edges = [];
+    let graph = {};
+    
+    // Initial graph generation
+    generateGraph('default');
 
-    const edges = [
-      { from: 0, to: 1, weight: 4 }, 
-      { from: 1, to: 2, weight: 3 },
-      { from: 2, to: 3, weight: 2 },
-      { from: 3, to: 4, weight: 5 },
-      { from: 4, to: 5, weight: 4 },
-      { from: 5, to: 6, weight: 3 },
-      { from: 6, to: 7, weight: 2 },
-      { from: 7, to: 0, weight: 5 },
-      { from: 0, to: 8, weight: 6 },
-      { from: 1, to: 9, weight: 7 },
-      { from: 2, to: 8, weight: 5 },
-      { from: 3, to: 11, weight: 3 },
-      { from: 4, to: 8, weight: 4 },
-      { from: 5, to: 11, weight: 6 },
-      { from: 6, to: 8, weight: 3 },
-      { from: 7, to: 10, weight: 4 },
-      { from: 8, to: 9, weight: 2 },
-      { from: 9, to: 11, weight: 6 },
-      { from: 10, to: 11, weight: 7 },
-      { from: 10, to: 8, weight: 3 }
-    ];
-
-    // Graph for DFS and BFS (using an adjacency list)
-    const graph = {};
-    nodes.forEach(node => graph[node.id] = []);
-    edges.forEach(edge => {
-      graph[edge.from].push(edge.to);
-      graph[edge.to].push(edge.from); // Undirected graph
-    });
+    /*---------------------------
+      Graph Generation Functions
+    ----------------------------*/
+    function generateGraph(graphType) {
+      const nodeCountInput = document.getElementById('nodeCount');
+      const numNodes = parseInt(nodeCountInput.value) || 12;
+      
+      // Update UI
+      currentGraphType = graphType;
+      updateGraphTypeButtons();
+      
+      // Clear existing graph
+      nodes = [];
+      edges = [];
+      
+      // Generate nodes and edges based on graph type
+      switch(graphType) {
+        case 'path':
+          generatePathGraph(numNodes);
+          break;
+        case 'cycle':
+          generateCycleGraph(numNodes);
+          break;
+        case 'complete':
+          generateCompleteGraph(numNodes);
+          break;
+        case 'star':
+          generateStarGraph(numNodes);
+          break;
+        case 'bipartite':
+          generateBipartiteGraph(numNodes);
+          break;
+        case 'binary_tree':
+          generateBinaryTreeGraph(numNodes);
+          break;
+        case 'grid':
+          generateGridGraph(numNodes);
+          break;
+        case 'sparse':
+          generateRandomGraph(numNodes, 0.2);
+          break;
+        case 'dense':
+          generateRandomGraph(numNodes, 0.7);
+          break;
+        default:
+          generateDefaultGraph(numNodes);
+      }
+      
+      // Build adjacency list representation
+      buildAdjacencyList();
+      
+      // Draw the graph
+      drawGraph();
+    }
+    
+    function updateGraphTypeButtons() {
+      const buttons = document.querySelectorAll('.graph-button');
+      buttons.forEach(button => {
+        if (button.textContent.toLowerCase().includes(currentGraphType) || 
+           (button.textContent === 'Default' && currentGraphType === 'default')) {
+          button.classList.add('active');
+        } else {
+          button.classList.remove('active');
+        }
+      });
+    }
+    
+    function selectGraphType(type) {
+      generateGraph(type);
+    }
+    
+    /*---------------------------
+      Different Graph Type Generators
+    ----------------------------*/
+    function generateDefaultGraph(numNodes) {
+      // Original implementation with circular layout
+      const centerX = canvas.width / 2;
+      const centerY = canvas.height / 2;
+      const outerRadius = Math.min(canvas.width, canvas.height) * 0.35;
+      const innerRadius = outerRadius * 0.6;
+      
+      // Create nodes
+      // Outer circle nodes
+      const outerNodes = Math.min(numNodes - 4, 8);
+      for (let i = 0; i < outerNodes; i++) {
+        const angle = (2 * Math.PI * i) / outerNodes;
+        nodes.push({
+          id: i,
+          x: centerX + outerRadius * Math.cos(angle),
+          y: centerY + outerRadius * Math.sin(angle)
+        });
+      }
+      
+      // Inner circle nodes
+      const innerNodes = Math.min(numNodes - outerNodes, 4);
+      for (let i = 0; i < innerNodes; i++) {
+        const angle = (2 * Math.PI * i) / innerNodes + Math.PI / innerNodes;
+        nodes.push({
+          id: outerNodes + i,
+          x: centerX + innerRadius * Math.cos(angle),
+          y: centerY + innerRadius * Math.sin(angle)
+        });
+      }
+      
+      // Center node if we have space
+      if (numNodes > outerNodes + innerNodes) {
+        nodes.push({
+          id: outerNodes + innerNodes,
+          x: centerX,
+          y: centerY
+        });
+      }
+      
+      // Add remaining nodes randomly if needed
+      for (let i = nodes.length; i < numNodes; i++) {
+        const angle = Math.random() * 2 * Math.PI;
+        const radius = Math.random() * outerRadius * 0.8;
+        nodes.push({
+          id: i,
+          x: centerX + radius * Math.cos(angle),
+          y: centerY + radius * Math.sin(angle)
+        });
+      }
+      
+      // Create edges - outer circle
+      for (let i = 0; i < outerNodes; i++) {
+        const next = (i + 1) % outerNodes;
+        edges.push({ 
+          from: i, 
+          to: next, 
+          weight: Math.floor(Math.random() * 8) + 2 
+        });
+      }
+      
+      // Connect inner to outer
+      for (let i = 0; i < innerNodes; i++) {
+        const outerIndex = Math.floor(i * outerNodes / innerNodes);
+        edges.push({ 
+          from: outerNodes + i, 
+          to: outerIndex, 
+          weight: Math.floor(Math.random() * 8) + 2 
+        });
+      }
+      
+      // Connect center to inner if it exists
+      if (numNodes > outerNodes + innerNodes) {
+        for (let i = 0; i < innerNodes; i++) {
+          edges.push({ 
+            from: outerNodes + innerNodes, 
+            to: outerNodes + i, 
+            weight: Math.floor(Math.random() * 8) + 2 
+          });
+        }
+      }
+      
+      // Add some random edges to make it more interesting
+      for (let i = 0; i < Math.min(numNodes, 5); i++) {
+        const from = Math.floor(Math.random() * nodes.length);
+        let to = Math.floor(Math.random() * nodes.length);
+        // Avoid self-loops and duplicates
+        while (to === from || edges.some(e => (e.from === from && e.to === to) || (e.from === to && e.to === from))) {
+          to = Math.floor(Math.random() * nodes.length);
+        }
+        edges.push({ 
+          from, 
+          to, 
+          weight: Math.floor(Math.random() * 8) + 2 
+        });
+      }
+    }
+    
+    function generatePathGraph(numNodes) {
+      // Position nodes in a line
+      const startX = canvas.width * 0.1;
+      const endX = canvas.width * 0.9;
+      const y = canvas.height / 2;
+      const step = (endX - startX) / (numNodes - 1);
+      
+      // Create nodes
+      for (let i = 0; i < numNodes; i++) {
+        nodes.push({
+          id: i,
+          x: startX + i * step,
+          y: y + (i % 2 === 0 ? -20 : 20) // Slight zigzag for visibility
+        });
+      }
+      
+      // Create edges (path)
+      for (let i = 0; i < numNodes - 1; i++) {
+        edges.push({
+          from: i,
+          to: i + 1,
+          weight: Math.floor(Math.random() * 8) + 2
+        });
+      }
+    }
+    
+    function generateCycleGraph(numNodes) {
+      // Position nodes in a circle
+      const centerX = canvas.width / 2;
+      const centerY = canvas.height / 2;
+      const radius = Math.min(canvas.width, canvas.height) * 0.4;
+      
+      // Create nodes
+      for (let i = 0; i < numNodes; i++) {
+        const angle = (2 * Math.PI * i) / numNodes;
+        nodes.push({
+          id: i,
+          x: centerX + radius * Math.cos(angle),
+          y: centerY + radius * Math.sin(angle)
+        });
+      }
+      
+      // Create edges (cycle)
+      for (let i = 0; i < numNodes; i++) {
+        edges.push({
+          from: i,
+          to: (i + 1) % numNodes,
+          weight: Math.floor(Math.random() * 8) + 2
+        });
+      }
+    }
+    
+    function generateCompleteGraph(numNodes) {
+      // Position nodes in a circle for visibility
+      const centerX = canvas.width / 2;
+      const centerY = canvas.height / 2;
+      const radius = Math.min(canvas.width, canvas.height) * 0.4;
+      
+      // Create nodes
+      for (let i = 0; i < numNodes; i++) {
+        const angle = (2 * Math.PI * i) / numNodes;
+        nodes.push({
+          id: i,
+          x: centerX + radius * Math.cos(angle),
+          y: centerY + radius * Math.sin(angle)
+        });
+      }
+      
+      // Create edges (complete graph - every node connects to every other node)
+      for (let i = 0; i < numNodes; i++) {
+        for (let j = i + 1; j < numNodes; j++) {
+          edges.push({
+            from: i,
+            to: j,
+            weight: Math.floor(Math.random() * 8) + 2
+          });
+        }
+      }
+    }
+    
+    function generateStarGraph(numNodes) {
+      // One central node with all others around it
+      const centerX = canvas.width / 2;
+      const centerY = canvas.height / 2;
+      const radius = Math.min(canvas.width, canvas.height) * 0.4;
+      
+      // Create center node
+      nodes.push({
+        id: 0,
+        x: centerX,
+        y: centerY
+      });
+      
+      // Create outer nodes
+      for (let i = 1; i < numNodes; i++) {
+        const angle = (2 * Math.PI * (i - 1)) / (numNodes - 1);
+        nodes.push({
+          id: i,
+          x: centerX + radius * Math.cos(angle),
+          y: centerY + radius * Math.sin(angle)
+        });
+      }
+      
+      // Create edges (star - all nodes connect to center)
+      for (let i = 1; i < numNodes; i++) {
+        edges.push({
+          from: 0,
+          to: i,
+          weight: Math.floor(Math.random() * 8) + 2
+        });
+      }
+    }
+    
+    function generateBipartiteGraph(numNodes) {
+      const centerX = canvas.width / 2;
+      const leftX = canvas.width * 0.25;
+      const rightX = canvas.width * 0.75;
+      
+      // Half on the left, half on the right
+      const half = Math.floor(numNodes / 2);
+      const leftCount = half;
+      const rightCount = numNodes - half;
+      
+      // Left side nodes
+      const leftStepY = (canvas.height * 0.8) / (leftCount - 1 || 1);
+      for (let i = 0; i < leftCount; i++) {
+        nodes.push({
+          id: i,
+          x: leftX,
+          y: canvas.height * 0.1 + i * leftStepY
+        });
+      }
+      
+      // Right side nodes
+      const rightStepY = (canvas.height * 0.8) / (rightCount - 1 || 1);
+      for (let i = 0; i < rightCount; i++) {
+        nodes.push({
+          id: leftCount + i,
+          x: rightX,
+          y: canvas.height * 0.1 + i * rightStepY
+        });
+      }
+      
+      // Create edges (bipartite - only between left and right)
+      // Each left node connects to some right nodes
+      for (let i = 0; i < leftCount; i++) {
+        // Connect to at least one right node
+        const connectionsCount = Math.floor(Math.random() * (rightCount - 1)) + 1;
+        const connectedRight = new Set();
+        
+        for (let c = 0; c < connectionsCount; c++) {
+          let rightNode;
+          do {
+            rightNode = leftCount + Math.floor(Math.random() * rightCount);
+          } while (connectedRight.has(rightNode));
+          
+          connectedRight.add(rightNode);
+          edges.push({
+            from: i,
+            to: rightNode,
+            weight: Math.floor(Math.random() * 8) + 2
+          });
+        }
+      }
+    }
+    
+    function generateBinaryTreeGraph(numNodes) {
+      // Calculate tree depth based on node count
+      const depth = Math.floor(Math.log2(numNodes));
+      const centerX = canvas.width / 2;
+      const topY = canvas.height * 0.1;
+      const verticalSpace = canvas.height * 0.8;
+      
+      // Create nodes level by level
+      let nodeId = 0;
+      for (let level = 0; level <= depth && nodeId < numNodes; level++) {
+        const levelWidth = Math.pow(2, level);
+        const horizontalStep = canvas.width / (levelWidth + 1);
+        const levelY = topY + (level / depth) * verticalSpace;
+        
+        for (let i = 0; i < levelWidth && nodeId < numNodes; i++) {
+          nodes.push({
+            id: nodeId,
+            x: (i + 1) * horizontalStep,
+            y: levelY
+          });
+          
+          // Connect to parent (except for root)
+          if (nodeId > 0) {
+            const parentId = Math.floor((nodeId - 1) / 2);
+            edges.push({
+              from: parentId,
+              to: nodeId,
+              weight: Math.floor(Math.random() * 8) + 2
+            });
+          }
+          
+          nodeId++;
+        }
+      }
+    }
+    
+    function generateGridGraph(numNodes) {
+      // Calculate approximate grid dimensions
+      const gridSize = Math.ceil(Math.sqrt(numNodes));
+      const cellWidth = canvas.width * 0.8 / gridSize;
+      const cellHeight = canvas.height * 0.8 / gridSize;
+      const startX = canvas.width * 0.1;
+      const startY = canvas.height * 0.1;
+      
+      // Create nodes in a grid pattern
+      let nodeId = 0;
+      for (let row = 0; row < gridSize && nodeId < numNodes; row++) {
+        for (let col = 0; col < gridSize && nodeId < numNodes; col++) {
+          nodes.push({
+            id: nodeId,
+            x: startX + col * cellWidth,
+            y: startY + row * cellHeight
+          });
+          nodeId++;
+        }
+      }
+      
+      // Create edges (connect to adjacent nodes)
+      for (let row = 0; row < gridSize; row++) {
+        for (let col = 0; col < gridSize; col++) {
+          const currentId = row * gridSize + col;
+          
+          // Skip if this node doesn't exist
+          if (currentId >= numNodes) continue;
+          
+          // Connect to right neighbor if it exists
+          if (col + 1 < gridSize && currentId + 1 < numNodes) {
+            edges.push({
+              from: currentId,
+              to: currentId + 1,
+              weight: Math.floor(Math.random() * 8) + 2
+            });
+          }
+          
+          // Connect to bottom neighbor if it exists
+          if (row + 1 < gridSize && currentId + gridSize < numNodes) {
+            edges.push({
+              from: currentId,
+              to: currentId + gridSize,
+              weight: Math.floor(Math.random() * 8) + 2
+            });
+          }
+        }
+      }
+    }
+    
+    function generateRandomGraph(numNodes, density) {
+      // Position nodes in a circle for visibility
+      const centerX = canvas.width / 2;
+      const centerY = canvas.height / 2;
+      const radius = Math.min(canvas.width, canvas.height) * 0.4;
+      
+      // Create nodes
+      for (let i = 0; i < numNodes; i++) {
+        const angle = (2 * Math.PI * i) / numNodes;
+        const r = radius * (0.8 + Math.random() * 0.2); // Some variation in radius
+        nodes.push({
+          id: i,
+          x: centerX + r * Math.cos(angle),
+          y: centerY + r * Math.sin(angle)
+        });
+      }
+      
+      // Create random edges based on density
+      for (let i = 0; i < numNodes; i++) {
+        for (let j = i + 1; j < numNodes; j++) {
+          if (Math.random() < density) {
+            edges.push({
+              from: i,
+              to: j,
+              weight: Math.floor(Math.random() * 8) + 2
+            });
+          }
+        }
+      }
+      
+      // Ensure graph is connected by adding minimum spanning tree
+      if (edges.length < numNodes - 1) {
+        // Start with node 0
+        const connectedNodes = new Set([0]);
+        
+        // Keep adding edges until all nodes are connected
+        while (connectedNodes.size < numNodes) {
+          // Find an edge that connects a connected node to an unconnected one
+          let bestEdge = null;
+          
+          for (let i of connectedNodes) {
+            for (let j = 0; j < numNodes; j++) {
+              if (!connectedNodes.has(j)) {
+                // This would be a valid edge to add
+                if (!bestEdge || Math.random() < 0.5) {
+                  bestEdge = { from: i, to: j, weight: Math.floor(Math.random() * 8) + 2 };
+                }
+              }
+            }
+          }
+          
+          if (bestEdge) {
+            edges.push(bestEdge);
+            connectedNodes.add(bestEdge.to);
+          } else {
+            // Shouldn't happen, but just in case
+            break;
+          }
+        }
+      }
+    }
+    
+    function buildAdjacencyList() {
+      // Create adjacency list representation for algorithms
+      graph = {};
+      nodes.forEach(node => graph[node.id] = []);
+      edges.forEach(edge => {
+        graph[edge.from].push(edge.to);
+        graph[edge.to].push(edge.from); // Undirected graph
+      });
+    }
 
     // Utility delay function
     function delay(ms) {
@@ -398,11 +931,26 @@
         ctx.fillText(node.id, node.x, node.y);
       });
       
-      // Add a title to show what the graph is
+      // Add graph type info
       ctx.fillStyle = '#000';
       ctx.font = '20px Arial';
       ctx.textAlign = 'center';
-      ctx.fillText('Graph Visualization', canvas.width / 2, 30);
+      ctx.fillText(getGraphTypeDisplayName() + ' Graph Visualization', canvas.width / 2, 30);
+    }
+    
+    function getGraphTypeDisplayName() {
+      switch(currentGraphType) {
+        case 'path': return 'Path';
+        case 'cycle': return 'Cycle';
+        case 'complete': return 'Complete';
+        case 'star': return 'Star';
+        case 'bipartite': return 'Bipartite';
+        case 'binary_tree': return 'Binary Tree';
+        case 'grid': return 'Grid';
+        case 'sparse': return 'Sparse Random';
+        case 'dense': return 'Dense Random';
+        default: return 'Default';
+      }
     }
 
     /*---------------------------
@@ -818,7 +1366,7 @@
       ctx.fillText("Floyd–Warshall: All Pairs Shortest Paths Computed", canvas.width / 2, canvas.height - 30);
     }
 
-      function drawFloydWarshallGraph(dist, changedEdges, title) {
+    function drawFloydWarshallGraph(dist, changedEdges, title) {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       
       // Draw nodes
@@ -913,6 +1461,14 @@
         await delay(500);
       }
       drawPerformanceChart(results);
+      
+      // Update graph type info for comparison
+      const graphTypeInfo = document.createElement('div');
+      graphTypeInfo.textContent = `Performance measured on ${getGraphTypeDisplayName()} graph with ${nodes.length} nodes and ${edges.length} edges`;
+      graphTypeInfo.style.textAlign = 'center';
+      graphTypeInfo.style.marginTop = '10px';
+      graphTypeInfo.style.fontStyle = 'italic';
+      perfCanvas.parentNode.appendChild(graphTypeInfo);
     }
 
     function drawPerformanceChart(data) {
@@ -997,6 +1553,12 @@
       perfCtx.textAlign = "center";
       perfCtx.fillText("Algorithm Execution Time Comparison", perfCanvas.width / 2, margin - 10);
       
+      // Add subtitle with graph type
+      perfCtx.fillStyle = "#333";
+      perfCtx.font = "16px Arial";
+      perfCtx.textAlign = "center";
+      perfCtx.fillText(`Graph Type: ${getGraphTypeDisplayName()}`, perfCanvas.width / 2, margin + 15);
+      
       // Add legend for what time includes
       perfCtx.fillStyle = "#666";
       perfCtx.font = "12px Arial";
@@ -1038,18 +1600,36 @@
       const V = nodes.length;
       const E = edges.length;
 
+      // Adjust theoretical times based on graph structure
+      function getComplexityFactor() {
+        switch(currentGraphType) {
+          case 'path': return 0.8;
+          case 'cycle': return 0.8;
+          case 'complete': return 1.5;
+          case 'star': return 0.5;
+          case 'bipartite': return 1.0;
+          case 'binary_tree': return 0.9;
+          case 'grid': return 1.2;
+          case 'sparse': return 1.0;
+          case 'dense': return 1.4;
+          default: return 1.0;
+        }
+      }
+      
       function randomFactor() {
         return 0.8 + Math.random() * 0.4;  
       }
      
-      const baseTime = 1e-6;  
+      const baseTime = 1e-6;
+      const complexityFactor = getComplexityFactor();
+      
       const theory = [
-        { name: "DFS", time: (V + E) * baseTime * randomFactor(), complexity: "O(V + E)" },
-        { name: "BFS", time: (V + E) * baseTime * randomFactor(), complexity: "O(V + E)" },
-        { name: "Prim", time: (E * Math.log2(V)) * baseTime * randomFactor(), complexity: "O(E log V)" },
-        { name: "Kruskal", time: (E * Math.log2(E)) * baseTime * randomFactor(), complexity: "O(E log E)" },
-        { name: "Dijkstra", time: (E * Math.log2(V)) * baseTime * randomFactor(), complexity: "O(E log V)" },
-        { name: "Floyd–Warshall", time: (V ** 3) * baseTime * randomFactor(), complexity: "O(V³)" }
+        { name: "DFS", time: (V + E) * baseTime * randomFactor() * complexityFactor, complexity: "O(V + E)" },
+        { name: "BFS", time: (V + E) * baseTime * randomFactor() * complexityFactor, complexity: "O(V + E)" },
+        { name: "Prim", time: (E * Math.log2(V)) * baseTime * randomFactor() * complexityFactor, complexity: "O(E log V)" },
+        { name: "Kruskal", time: (E * Math.log2(E)) * baseTime * randomFactor() * complexityFactor, complexity: "O(E log E)" },
+        { name: "Dijkstra", time: (E * Math.log2(V)) * baseTime * randomFactor() * complexityFactor, complexity: "O(E log V)" },
+        { name: "Floyd–Warshall", time: (V ** 3) * baseTime * randomFactor() * complexityFactor, complexity: "O(V³)" }
       ];
 
       const margin = 50;
@@ -1135,6 +1715,12 @@
       theoryCtx.textAlign = "center";
       theoryCtx.fillText("Theoretical Time Complexity Comparison", theoryCanvas.width / 2, margin - 10);
       
+      // Add subtitle with graph type
+      theoryCtx.fillStyle = "#333";
+      theoryCtx.font = "16px Arial";
+      theoryCtx.textAlign = "center";
+      theoryCtx.fillText(`Graph Type: ${getGraphTypeDisplayName()} (V=${V}, E=${E})`, theoryCanvas.width / 2, margin + 15);
+      
       // Add explanation
       theoryCtx.fillStyle = "#666";
       theoryCtx.font = "12px Arial";
@@ -1143,8 +1729,6 @@
                          theoryCanvas.width / 2, theoryCanvas.height - 10);
     }
 
-    // Initialize the visualization
-    drawGraph();
   </script>
 </body>
 </html>
